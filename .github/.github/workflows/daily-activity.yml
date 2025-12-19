@@ -11,7 +11,7 @@ on:
   schedule:
     # 3 times per day (all UTC) – tweak if you want different times
     - cron: "0 3 * * *"   # ~morning (UTC)
-    - cron: "0 11 * * *"  # ~afternoon (UTC)
+    - cron: "0 14 * * *"  # ~afternoon (UTC)
     - cron: "0 19 * * *"  # ~evening (UTC)
   workflow_dispatch:      # allows manual runs from the Actions tab
 
@@ -45,7 +45,7 @@ jobs:
         run: |
           # Configure git user as the repository owner
           git config user.name "anjalipandey21"
-          git config user.email "YOUR_ID+anjalipandey21@users.noreply.github.com"
+          git config user.email "100082796+anjalipandey21@users.noreply.github.com"
 
           # Stage the log file (new or existing)
           git add activity.log
@@ -84,10 +84,11 @@ jobs:
           size=${#msgs[@]}
           index=$((RANDOM % size))
           BASE_MESSAGE="${msgs[$index]}"
-          TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
-          COMMIT_MESSAGE="${BASE_MESSAGE} (${TIMESTAMP})"
+          TS=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
+          COMMIT_MESSAGE="${BASE_MESSAGE} (${TS})"
 
-          git pull --rebase origin master || true
+          # Avoid push conflicts if runs happen close together
+          git pull --rebase origin main || true
 
           git commit -m "$COMMIT_MESSAGE"
           git push
