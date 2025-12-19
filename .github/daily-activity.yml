@@ -1,0 +1,87 @@
+name: Daily Activity Updates
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    # 3 times per day (all UTC) – tweak if you want different times
+    - cron: "0 3 * * *"   # ~morning (UTC)
+    - cron: "0 11 * * *"  # ~afternoon (UTC)
+    - cron: "0 19 * * *"  # ~evening (UTC)
+  workflow_dispatch:      # allows manual runs from the Actions tab
+
+jobs:
+  activity:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Append activity line
+        run: |
+          # Decide part of day based on current UTC hour
+          HOUR=$(date -u +'%H')
+          if [ "$HOUR" -lt 10 ]; then
+            PART_OF_DAY="morning"
+          elif [ "$HOUR" -lt 18 ]; then
+            PART_OF_DAY="afternoon"
+          else
+            PART_OF_DAY="evening"
+          fi
+
+          TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M:%S')
+          echo "$TIMESTAMP - automated activity update (${PART_OF_DAY} run)" >> activity.log
+          echo "Appended activity line to activity.log"
+
+      - name: Commit and push if changed
+        run: |
+          # Configure git user as the repository owner
+          git config user.name "Anshul-24git"
+          git config user.email "175382700+Anshul-24git@users.noreply.github.com"
+
+          # Stage the log file (new or existing)
+          git add activity.log
+
+          # If there is nothing to commit (shouldn't happen since we appended),
+          # git status --porcelain will be empty.
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          # A mix of human-like and random-ish commit messages
+          msgs=(
+            "chore: refresh daily activity log"
+            "update: sync background activity snapshot"
+            "chore: record automated metrics run"
+            "refactor: tweak periodic job output"
+            "chore: roll forward scheduled task results"
+            "update: persist latest activity timestamps"
+            "maintenance: background job heartbeat update"
+            "chore: log periodic pipeline execution"
+            "update: store daily automation summary"
+            "chore: rollup latest background process data"
+            "maintenance: keep activity records up to date"
+            "chore: capture new scheduler run details"
+            "update: append automated run information"
+            "chore: small housekeeping on activity tracking"
+            "maintenance: keep scheduled job traces current"
+            "update: add latest cron-run entry"
+            "chore: log recurring automation status"
+            "update: write new periodic activity snapshot"
+            "maintenance: ensure activity log freshness"
+            "chore: record recurring workflow execution"
+          )
+
+          size=${#msgs[@]}
+          index=$((RANDOM % size))
+          BASE_MESSAGE="${msgs[$index]}"
+          TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
+          COMMIT_MESSAGE="${BASE_MESSAGE} (${TIMESTAMP})"
+
+          git commit -m "$COMMIT_MESSAGE"
+          git push
