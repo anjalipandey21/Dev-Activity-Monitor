@@ -40,8 +40,8 @@ jobs:
       - name: Commit and push if changed
         run: |
           # Configure git user as the repository owner
-          git config user.name "Anshul-24git"
-          git config user.email "175382700+Anshul-24git@users.noreply.github.com"
+          git config user.name "anjalipandey21"
+          git config user.email "YOUR_ID+anjalipandey21@users.noreply.github.com"
 
           # Stage the log file (new or existing)
           git add activity.log
